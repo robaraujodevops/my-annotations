@@ -30,17 +30,17 @@ To update pod state:
 
 ### Pod Definition
 ```
- 	apiVersion: v1
-  kind: Pod
-  metadata:
-	  name:
-	  labels:
-	  app:
-	  type:
-  spec:
-	  containers:
-		- name: nginx-container
-		  image: nginx
+apiVersion: v1
+kind: Pod
+metadata:
+  name:
+  labels:
+    app:
+    type:
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
 ```
 
 ## Replication Controller:
