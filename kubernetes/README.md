@@ -57,22 +57,22 @@ To get replication controllers
 apiVersion: v1
 kind: ReplicationController
 metadata:
-	name: myapp-rc
-	labels:
-		app: myapp
-		type: front-end
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
 spec:
-	template:
-		metadata:
-			name:
-			labels: my-app-pod
-				app: my-app
-				type: front-end
-		spec:
-			containers:
-				- name: nginx-container
-				  image: nginx
-	replicas: 3
+  template:
+    metadata:
+      name:
+      labels: my-app-pod
+        app: my-app
+        type: front-end
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+    replicas: 3
 ```
 
 ## Replica Set:
@@ -102,31 +102,31 @@ To scale replicaset:
 To delete replicasets ( will delete undelying pods ):
 `kubectl delete replicaset my-app-rs`
 
-### Replica set Definition:	
+### Replica set Definition: 
 
 ```
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-	name: my-app-rs
-	labels:
-		app: myapp
-		type: front-end
+ name: my-app-rs
+ labels:
+  app: myapp
+  type: front-end
 spec:
-	template:
-		metadata:
-			name:
-			labels: my-app-pod
-				app: my-app
-				type: front-end
-		spec:
-			containers:
-				- name: nginx-container
-				  image: nginx
-	replicas: 3
-	selector:
-		matchLabels:
-			type: front-end
+ template:
+  metadata:
+   name:
+   labels: my-app-pod
+    app: my-app
+    type: front-end
+  spec:
+   containers:
+    - name: nginx-container
+      image: nginx
+ replicas: 3
+ selector:
+  matchLabels:
+   type: front-end
 ```
 
 ## Deployment
@@ -137,7 +137,7 @@ To create deployment:
 
 `kubectl create -f deployment-definition.yml`
 
-*	or easy way:
+* or easy way:
 
 `kubectl create deployment --image=nginx nginx`
 
@@ -155,31 +155,31 @@ Deployment Definition:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-	name: myapp-deployment
-	labels:
-  		app: myapp
-  		type: front-end
+ name: myapp-deployment
+ labels:
+    app: myapp
+    type: front-end
 spec:
-	template:
-		metadata:
-			name: myapp-pod
-			labels:
-				app: myapp
-				type: front-end
-		spec:
-			containers:
-			- name: nginx-container
-			  image: nginx
+ template:
+  metadata:
+   name: myapp-pod
+   labels:
+    app: myapp
+    type: front-end
+  spec:
+   containers:
+   - name: nginx-container
+     image: nginx
 replicas: 3
 selector:
-	matchLabels:
-		type: front-end
+ matchLabels:
+  type: front-end
 ```
 
 ## Namespaces:
 
 url service: db-service.dev.svc.cluster.local
-		
+  
 To get pods by namespace, if not, always return default namespace:
 
 `kubectl get pods --namespace=kube-system or --all-namespace(for all)`
@@ -207,15 +207,15 @@ Namespace Definition:
 apiVersion: v1
 kind: Pod
 metadata:
-	name: my-app
-	labels: 
-		app: my
-		type: front
-	namespace: dev
+ name: my-app
+ labels: 
+  app: my
+  type: front
+ namespace: dev
 spec:
-	containers:
-		- name: nginx-container
-		  image: nginx
+ containers:
+  - name: nginx-container
+    image: nginx
 ```
 
 * At namespace
@@ -223,9 +223,9 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
-	name: dev
+ name: dev
 ```
- 	
+  
 ## Resourcequota:
 
 To define quota for a namespace
@@ -236,17 +236,17 @@ Resource quota definition:
 
 ```
 apiVersion: v1
-	kind: ResourceQuota
-	metadata:
-		name: app-quota
-		namespace: dev
-	spec:
-		hard:
-			pods: “10”
-			requests.cpu: “4”
-			requests.memory: 5Gi
-			limits.cpu: “10”
-			limits.memory: 10Gi
+ kind: ResourceQuota
+ metadata:
+  name: app-quota
+  namespace: dev
+ spec:
+  hard:
+   pods: “10”
+   requests.cpu: “4”
+   requests.memory: 5Gi
+   limits.cpu: “10”
+   limits.memory: 10Gi
 ```
 
 ## Services - Node Port:
@@ -266,17 +266,17 @@ Services Node Port Definition:
 apiVersion: v1
 kind: Service
 metadata:
-	name: my-app-service
+ name: my-app-service
 
 spec:
-	type: NodePort
-	ports:
-		- targetPort: 80
-		port: 80
-		nodePort: 300008
-	selector:
-		app: myapp
-		type: front-end
+ type: NodePort
+ ports:
+  - targetPort: 80
+  port: 80
+  nodePort: 300008
+ selector:
+  app: myapp
+  type: front-end
 ```
 
 ## Services - Cluster IP
@@ -288,22 +288,22 @@ To create a cluster ip service:
 To get services
 
 `kubectl get services`
-	
+ 
 Services Cluster IP definition:
 ```
 apiVersion: v1
 kind: Service
 metadata:
-	name: back-end
+ name: back-end
 
 spec:
-	type: ClusterIP
-	ports:
+ type: ClusterIP
+ ports:
   - targetPort: 80
     port: 80
-	selector:
-  	app: myapp
-		type: back-end
+ selector:
+   app: myapp
+  type: back-end
 ```
 
 ## Services - Load Balancer
@@ -318,32 +318,32 @@ To get a pod by label:
 
 `kubectl get pods --selector app=App1`
 
->	Its necessary to group resources
+> Its necessary to group resources
 Definition:
 ```
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-	name: simple-webapp
-	labels:
-		app: App1
-		function: Front-End
-	annotations:
-		buildversion: 1.34
+ name: simple-webapp
+ labels:
+  app: App1
+  function: Front-End
+ annotations:
+  buildversion: 1.34
 spec:
-	replicas: 3
-	selector:
-		matchLabels:
-			app: App1
-	template:
-		metadata:
-			labels:
-				app: App1
-				function: Front-End
-			spec:
-				containers:
-				  - name: simple-webapp
-				    image: simple-webapp
+ replicas: 3
+ selector:
+  matchLabels:
+   app: App1
+ template:
+  metadata:
+   labels:
+    app: App1
+    function: Front-End
+   spec:
+    containers:
+      - name: simple-webapp
+        image: simple-webapp
 ```
 
 ## Taint and tolerations
@@ -363,34 +363,34 @@ pod-definition.yml
 apiVersion: v1
 kind: Pod
 metadata:
-	name: myapp-pod
+ name: myapp-pod
 spec:
-	containers:
-	  - name: nginx-controller
-	    image: nginx
-	tolerations:
-	  - key: “app”
-	    operator: “Equal”
-	    value: “blue”
-	    effect: “NoSchedule”
+ containers:
+   - name: nginx-controller
+     image: nginx
+ tolerations:
+   - key: “app”
+     operator: “Equal”
+     value: “blue”
+     effect: “NoSchedule”
 ```
-	
+ 
 ## Node Selector:
-	
+ 
 Can define in a pod a node selector to put the container:
-		
+  
 pod-definition.yml
 ```
 apiVersion: v1
 kind: Pod
 metadata:
-	name: myapp-pod
+ name: myapp-pod
 spec:
-	containers:
-	- name: data-processor
-	  image: data-processor
-	nodeSelector:
-	  size: Large
+ containers:
+ - name: data-processor
+   image: data-processor
+ nodeSelector:
+   size: Large
 ```
 
 To use this in a POD we need to label nodes:
@@ -406,10 +406,10 @@ Available
 > requiredDuringSchedulingIgnoredDuringExecution
 
 > preferredDuringSchedulingIgnoredDuringExecution
-	
+ 
 Planned
 
->	requiredDuringSchedulingRequiredDuringExecution
+> requiredDuringSchedulingRequiredDuringExecution
 
 Can define in a pod a node selector with more especification in the query:
 
@@ -419,21 +419,21 @@ pod-definition.yml
 apiVersion: v1
 kind: Pod
 metadata:
-	name: myapp-pod
+ name: myapp-pod
 spec:
-	containers:
-	- name: data-processor
-	  image: data-processor
-	affinity
+ containers:
+ - name: data-processor
+   image: data-processor
+ affinity
     nodeAffinity:
-	    requireDuringSchedulingIgnoredDuringExecution:
-		    nodeSelectorTerms:
-			  - matchExpressions:
-			    - key: size
-			      operator: In
-			      values:
+     requireDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+     - matchExpressions:
+       - key: size
+         operator: In
+         values:
             - Large
-			        size: Large
+           size: Large
 ```
 
 ##Resources and limits
@@ -444,18 +444,18 @@ pod-definition.yml
 apiVersion: v1
 kind: Pod
 metadata:
-	name: myapp-pod
+ name: myapp-pod
 spec:
-	containers:
-	- name: data-processor
-	  image: data-processor
+ containers:
+ - name: data-processor
+   image: data-processor
 resources:
-	requests; 
-		memory: “1Gi”
-		cpu: 1
-	limits;
-		memory: “2Gi”
-		cpu: 2
+ requests; 
+  memory: “1Gi”
+  cpu: 1
+ limits;
+  memory: “2Gi”
+  cpu: 2
 ```
 
 Obs: For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
@@ -468,7 +468,7 @@ metadata:
 spec:
   limits:
   - default:
-  	memory: 512Mi
+   memory: 512Mi
     defaultRequest:
       memory: 256Mi
   type: Container
@@ -482,18 +482,18 @@ kind: LimitRange
 metadata:
 name: cpu-limit-range
 spec:
-	limits:
-	- default:
+ limits:
+ - default:
     cpu: 1
     defaultRequest:
- 		  cpu: 0.5
+     cpu: 0.5
   type: Container
 ```
 
 Best way to edit pods especifications is by editing the deployment
 
 ## DaemonSets
-	
+ 
 Sets up especific pods that always will be running in every node, especified by kube-api
 
 To create a daemon set:
@@ -520,7 +520,7 @@ spec:
       - name: monitoring-agent
         image: monitoring-agent
 ```
-			
+   
 ## Static Pods
 
 Operate kubelet direct over a node with docker, created by kubelet it self
@@ -531,13 +531,13 @@ We can specifie this path inside kubelet.service config daemon:
 
 ```
 ExecStart=/usr/local/bin/kubelet \\
-			--container-runtime=remote \\
-			--container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \\
-			--pod-manifest-path=/etc/kubernetes/manifests \\
-			--kubeconfig=/var/lib/kubelet/kubeconfig \\
-			--network-plugin=cni \\
-			--register-node=true \\
-			--v=2
+   --container-runtime=remote \\
+   --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \\
+   --pod-manifest-path=/etc/kubernetes/manifests \\
+   --kubeconfig=/var/lib/kubelet/kubeconfig \\
+   --network-plugin=cni \\
+   --register-node=true \\
+   --v=2
 ```
 
 * OR
@@ -611,11 +611,11 @@ spec:
 ## Metrics Server
 
 To get current metric infos about k8s cluster (In memory)
-	
+ 
 > git clone https://github.com/kubernetes-incubator/metrics-server.git
 
 `kubctl create -f deploy/1.8+/`
-		
+  
 To check metrics:
 
 `kubectl top node`
@@ -655,7 +655,7 @@ To rollback the version:
 
 `kubectl rollout undo deployment/myapp-deployment`
 
-	
+ 
 ## Commands and Arguments
 
 We can define a command that will act like entrypoint in the dockerfile and args that will act like cmd in the dockerfile.
@@ -678,7 +678,7 @@ spec:
 ## Config Maps
 
 We can use to pass env vars to the container:
-		
+  
 To define a config map:
 
 * Imperative
@@ -689,7 +689,7 @@ kubectl create configmap app-config \
   --from-literal=APP_MOD=prod
   --from-file=app_config.properties
 ```
-	
+ 
 * Declarative
 
 config-map-definition.yaml
@@ -741,8 +741,8 @@ spec:
      - name: APP_COLOR
        valueFrom:
          configMapKeyRef:
-	         name: app-config
-	         key: APP_COLOR
+          name: app-config
+          key: APP_COLOR
 ```
 
 ##Secrets
@@ -752,12 +752,12 @@ To store sensitive data.
 * Imperative
   * Literal
     * `kubectl create secret generic app-secret --from-literal=DB_host=mysql`
-	* OR From file
+ * OR From file
     * `kubectl create secret generic app-secret --from-file=app_secret.properties`
 
 * Declarative
   * `kubectl create secret -f secret-definition.yaml`
-	
+ 
 secret-definition.yaml
 
 ```
@@ -787,19 +787,19 @@ spec:
     envFrom: (Reference secret)
       - secretRef:
         name: app-secret 
-	  env: (Reference single env)
-		  - name: DB_Password
-		    valueFrom:
-		      secretKeyRef:
-		  	    name: app-secret
-			      key: DB_Password
+   env: (Reference single env)
+    - name: DB_Password
+      valueFrom:
+        secretKeyRef:
+         name: app-secret
+         key: DB_Password
     volumes: (Reference as a volume, will store files with values)
       - name: app-secret-volume
         secret:
           secretName: app-secret
 ```
 
-#	Init Containers
+# Init Containers
 
 Used to start first containers:
 
@@ -815,9 +815,9 @@ spec:
   - name: ubuntu-sleeper
     image: ubuntu-sleeper
   initContainers:
-	  - name: init-myservice
-	    image: busybox:1.28
-	    command: [“sh”,”-c”]
+   - name: init-myservice
+     image: busybox:1.28
+     command: [“sh”,”-c”]
 ```
 
 ## Cluster Maintenance
@@ -827,7 +827,7 @@ To clean a node and do not lost current pods that will be flushed after 5min ( a
 `kubectl drain node-1 ( will recreate the pods in other nodes until the node-1 comes back )`
 `kubectl uncordon node-1 ( will re-schedule the node after the drain )`
 `kubectl cordon node-2 ( will unschedule the node, so this can’t gain new pods )`
-	
+ 
 ## Kubernetes Upgrades
 
 First of all upgrade the master node with your components, needs to be upgrated one by one minor version, 1.11 -> 1.12 -> 1.13: 
@@ -884,10 +884,10 @@ Use the etcdctl cli to make a snapshot:
 
 ```
 ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
-		--endpoints=https://127.0.0.1:2379 \
-		--cacert=/etc/etcd/ca.crt \
-		--cert=/etc/etcd/etcd-server.crt \
-		--key=/etc/etcd/etcd-server.key
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/etcd/ca.crt \
+  --cert=/etc/etcd/etcd-server.crt \
+  --key=/etc/etcd/etcd-server.key
 ```
 
 To view status from backup:
@@ -900,7 +900,7 @@ To restore from this snapshot.db
 
 ```
 ETCDCTL_API=3 etcdctl snapshot restore snapshot.db \
-					--data-dir /var/lib/etcd-from-backup
+     --data-dir /var/lib/etcd-from-backup
 ```
 
 Change the data dir path in etcd service template: /etc/systemd/system/etcd.service
@@ -917,18 +917,18 @@ Certificate (Public Key) => *.crt, *.pem
 Private Key => *.key, *-key.pem
 
 Needs to certificate all parts of kubernetes (servers)
-	kubelet servers(nodes) => kubelet.crt, kubelet.key
+ kubelet servers(nodes) => kubelet.crt, kubelet.key
 -> kubelet-client.crt, kubelet-client.key (clients)
-				<- apiserver-kubelet-client.crt, apiserver-kubelet-client.key (clients)
-			kube-api server => apiserver.crt, apiserver.key
-				<- apiserver-etcd-client.crt, apiserver-etcd-client.key (clients)
+    <- apiserver-kubelet-client.crt, apiserver-kubelet-client.key (clients)
+   kube-api server => apiserver.crt, apiserver.key
+    <- apiserver-etcd-client.crt, apiserver-etcd-client.key (clients)
 etcd server        => etcdserver.crt, etcdserver.key
-		And all services of kubernetes needs too (clients)
-			admin(kubctl REST api) => admin.crt, admin.key
-			kube-scheduler => scheduler.crt, scheduler.key
-			kube-controller-manager => controller-manager.crt, controller-manager.key
-			kube-proxy => kube-proxy.crt, kube-proxy.key
-		
+  And all services of kubernetes needs too (clients)
+   admin(kubctl REST api) => admin.crt, admin.key
+   kube-scheduler => scheduler.crt, scheduler.key
+   kube-controller-manager => controller-manager.crt, controller-manager.key
+   kube-proxy => kube-proxy.crt, kube-proxy.key
+  
 To generate certificates
 FIrst we need to generates a CA, this could be made at master node and will be used to assign all the certs needed
 openssl genrsa -out ca.key 2048 (generates key)
@@ -936,86 +936,86 @@ openssl req -new -key ca.key -subj “/CN=KUBERNETES-CA” -out ca.csr (Certific
 openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt (Sign certificates)
 
 Then we need to generate the certs of all the Clients:
-	First the admin
-	openssl genrsa -out admin.key 2048 (generates key)
-	openssl req -new -key admin.key -subj “/CN=kube-admin/O=system:masters” -out admin.csr (Certificate Signing Request)(added a O in subject to set the group, in this case admin gain the most privileged)
-	openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt (Sign certificate)
-	
-	Then the other Clients:
-		kube-scheduler, kube-controller-manager, kube-proxy
-	in this cases we must prefix the CN with system:
-	openssl genrsa -out kube-scheduler.key 2048 (generates key)
-	openssl req -new -key admin.key -subj “/CN=system:kube-scheduler” -out kube-scheduler.csr (Certificate Signing Request)(prefixed CN with system)
-	openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -out kube-scheduler.crt (Sign certificate)
-	
+ First the admin
+ openssl genrsa -out admin.key 2048 (generates key)
+ openssl req -new -key admin.key -subj “/CN=kube-admin/O=system:masters” -out admin.csr (Certificate Signing Request)(added a O in subject to set the group, in this case admin gain the most privileged)
+ openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt (Sign certificate)
+ 
+ Then the other Clients:
+  kube-scheduler, kube-controller-manager, kube-proxy
+ in this cases we must prefix the CN with system:
+ openssl genrsa -out kube-scheduler.key 2048 (generates key)
+ openssl req -new -key admin.key -subj “/CN=system:kube-scheduler” -out kube-scheduler.csr (Certificate Signing Request)(prefixed CN with system)
+ openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -out kube-scheduler.crt (Sign certificate)
+ 
 After the clients we need to generate the servers certificates:
 First ETCD server:
 openssl genrsa -out etcdserver.key 2048 (generates key)
-	openssl req -new -key admin.key -subj “/CN=etcdserver” -out etcdserver.csr (Certificate Signing Request)
-	openssl x509 -req -in etcdserver.csr -CA ca.crt -CAkey ca.key -out etcdserver.crt (Sign certificate)
+ openssl req -new -key admin.key -subj “/CN=etcdserver” -out etcdserver.csr (Certificate Signing Request)
+ openssl x509 -req -in etcdserver.csr -CA ca.crt -CAkey ca.key -out etcdserver.crt (Sign certificate)
 
-	If is a cluster of etcd servers needs to generate the certs for the peers:
+ If is a cluster of etcd servers needs to generate the certs for the peers:
 
 
 And kube-api server:
 This case we must especify all the subjects name that other names use to comunicate:
 openssl genrsa -out apiserver.key 2048 (generates key)
 Set an openssl.cnf file to especify alternative names:
-	[req]
-	req_extensions = v3_req
-	[v3_req]
-	basicConstraints = CA:FALSE
-	keyUsage = nonRepudiation,
-	subjectAltName = @alt_names
-	[alt_names]
-	DNS.1 = kubernetes
-	DNS.2 = kubernetes.default
-	DNS.3 = kubernetes.default.svc
-	DNS.4 = kubernetes.default.svc.cluster.local
-	IP.1 = 10.96.0.1
-	IP.2 = 172.17.0.87
+ [req]
+ req_extensions = v3_req
+ [v3_req]
+ basicConstraints = CA:FALSE
+ keyUsage = nonRepudiation,
+ subjectAltName = @alt_names
+ [alt_names]
+ DNS.1 = kubernetes
+ DNS.2 = kubernetes.default
+ DNS.3 = kubernetes.default.svc
+ DNS.4 = kubernetes.default.svc.cluster.local
+ IP.1 = 10.96.0.1
+ IP.2 = 172.17.0.87
 
 
-	openssl req -new -key apiserver.key -subj “/CN=kube-apiserver” -out apiserver.csr \
+ openssl req -new -key apiserver.key -subj “/CN=kube-apiserver” -out apiserver.csr \
 --config openssl.cnf (Certificate Signing Request)
-	openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
+ openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
 
-				
+    
 
-				Set at systemd unit exec start of kube-apiserver
-				ExecStart=/usr/local/bin/kube-apiserver \\
-					--etcd-cafile=/var/lib/kubernetes/ca.pem \\
-					--etcd-certfile=/var/lib/kubernetes/apiserver-etcd-client.crt \\
-					--etcd-keyfile=/var/lib/kubernetes/apiserver-etcd-client.key \\
-					--kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
-					--kubelet-client-certificate=/var/lib/kubernetes/apiserver-etcd-client.crt \\
-					--kubelet-client-key=/var/lib/kubernetes/apiserver-etcd-client.key \\
-					--client-ca-file=/var/lib/kubernetes/ca.pem \\
-					--tls-cert-file=/var/lib/kubernetes/apiserver.crt \\
-					--tls-private-key-file=/var/lib/kubernetes/apiserver.key \\
-				
-				And kubelets nodes:
-				The name(CN) of nodes must follow node01...02...03
+    Set at systemd unit exec start of kube-apiserver
+    ExecStart=/usr/local/bin/kube-apiserver \\
+     --etcd-cafile=/var/lib/kubernetes/ca.pem \\
+     --etcd-certfile=/var/lib/kubernetes/apiserver-etcd-client.crt \\
+     --etcd-keyfile=/var/lib/kubernetes/apiserver-etcd-client.key \\
+     --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
+     --kubelet-client-certificate=/var/lib/kubernetes/apiserver-etcd-client.crt \\
+     --kubelet-client-key=/var/lib/kubernetes/apiserver-etcd-client.key \\
+     --client-ca-file=/var/lib/kubernetes/ca.pem \\
+     --tls-cert-file=/var/lib/kubernetes/apiserver.crt \\
+     --tls-private-key-file=/var/lib/kubernetes/apiserver.key \\
+    
+    And kubelets nodes:
+    The name(CN) of nodes must follow node01...02...03
 openssl genrsa -out apiserver.key 2048 (generates key)
-	openssl req -new -key apiserver.key -subj “/CN=node01” -out apiserver.csr
-	openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
-	
-	With the certificate we must add them to the kubelet-config.yml
-		kind: KubeletConfiguration
-		apiVersion: kubelet.config.k8s.io/v1beta1
-		authentication:
-		  x509:
-		    clientCAFile: “/var/lib/kubernetes/ca.pem”
-		authorization:
-		  mode: Webhook
-		clusterDomain: “cluster.local”
-		clusterDNS:
-		  - “10.32.0.10”
-		podCIDR: “${POD_CIDR}}”
-		resolvConf: “/run/systemd/resolve/resolv.conf”
-		runtimeRequestTimeout: “15m”
-		tlsCertFile: “/var/lib/kubelet/kubelet-node01.crt”
-		tlsPrivateKeyFile: “/var/lib/kubelet/kubelet-node01.key”
+ openssl req -new -key apiserver.key -subj “/CN=node01” -out apiserver.csr
+ openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
+ 
+ With the certificate we must add them to the kubelet-config.yml
+  kind: KubeletConfiguration
+  apiVersion: kubelet.config.k8s.io/v1beta1
+  authentication:
+    x509:
+      clientCAFile: “/var/lib/kubernetes/ca.pem”
+  authorization:
+    mode: Webhook
+  clusterDomain: “cluster.local”
+  clusterDNS:
+    - “10.32.0.10”
+  podCIDR: “${POD_CIDR}}”
+  resolvConf: “/run/systemd/resolve/resolv.conf”
+  runtimeRequestTimeout: “15m”
+  tlsCertFile: “/var/lib/kubelet/kubelet-node01.crt”
+  tlsPrivateKeyFile: “/var/lib/kubelet/kubelet-node01.key”
 
 
 TIPS
@@ -1087,5 +1087,5 @@ Or
 
 (This will not use the pods labels as selectors)
 
-	
+ 
 
