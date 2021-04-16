@@ -912,111 +912,160 @@ Change the data dir path in etcd service template: /etc/systemd/system/etcd.serv
 `service kube-apiserver start`
 
 
-##Authentication
-Certificate (Public Key) => *.crt, *.pem
-Private Key => *.key, *-key.pem
+## Authentication
 
-Needs to certificate all parts of kubernetes (servers)
- kubelet servers(nodes) => kubelet.crt, kubelet.key
--> kubelet-client.crt, kubelet-client.key (clients)
-    <- apiserver-kubelet-client.crt, apiserver-kubelet-client.key (clients)
-   kube-api server => apiserver.crt, apiserver.key
-    <- apiserver-etcd-client.crt, apiserver-etcd-client.key (clients)
-etcd server        => etcdserver.crt, etcdserver.key
-  And all services of kubernetes needs too (clients)
-   admin(kubctl REST api) => admin.crt, admin.key
-   kube-scheduler => scheduler.crt, scheduler.key
-   kube-controller-manager => controller-manager.crt, controller-manager.key
-   kube-proxy => kube-proxy.crt, kube-proxy.key
-  
-To generate certificates
-FIrst we need to generates a CA, this could be made at master node and will be used to assign all the certs needed
-openssl genrsa -out ca.key 2048 (generates key)
-openssl req -new -key ca.key -subj “/CN=KUBERNETES-CA” -out ca.csr (Certificate Signing Request)
-openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt (Sign certificates)
+> Certificate (Public Key) => *.crt, *.pem
+
+> Private Key => *.key, *-key.pem
+
+Needs to certificate all parts of kubernetes
+
+* Servers
+  * kubelet servers(nodes)
+    * At host => kubelet.crt, kubelet.key
+    * At master => kubelet-client.crt, kubelet-client.key (clients)
+    * At apiserver => apiserver-kubelet-client.crt, apiserver-kubelet-client.key (clients)
+
+  * kube-api server 
+    * At host => apiserver.crt, apiserve 
+    * At host to talk with etcd => apiserver-etcd-client.crt, apiserver-etcd-client.key (clients)
+
+  * etcd server => etcdserver.crt, etcdserver.key
+
+* And all services of kubernetes needs too (clients)
+  * admin(kubctl REST api) => admin.crt, admin.key
+  * kube-scheduler => scheduler.crt, scheduler.key
+  * kube-controller-manager => controller-manager.crt, controller-manager.key
+  * kube-proxy => kube-proxy.crt, kube-proxy.key
+
+## To generate certificates
+
+First we need to generates a CA, this could be made at master node and will be used to assign all the certs needed
+
+`openssl genrsa -out ca.key 2048 (generates key)`
+`openssl req -new -key ca.key -subj “/CN=KUBERNETES-CA” -out ca.csr (Certificate Signing Request)`
+`openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt (Sign certificates)`
 
 Then we need to generate the certs of all the Clients:
- First the admin
- openssl genrsa -out admin.key 2048 (generates key)
- openssl req -new -key admin.key -subj “/CN=kube-admin/O=system:masters” -out admin.csr (Certificate Signing Request)(added a O in subject to set the group, in this case admin gain the most privileged)
- openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt (Sign certificate)
+
+
+#### First the admin
+
+> Generates key
+
+`openssl genrsa -out admin.key 2048`
+
+> Certificate Signing Request
+> added a O in subject to set the group, in this case admin gain the most privileged
+
+`openssl req -new -key admin.key -subj “/CN=kube-admin/O=system:masters” -out admin.csr`
+
+> Sign certificate
+
+`openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt`
  
- Then the other Clients:
-  kube-scheduler, kube-controller-manager, kube-proxy
- in this cases we must prefix the CN with system:
- openssl genrsa -out kube-scheduler.key 2048 (generates key)
- openssl req -new -key admin.key -subj “/CN=system:kube-scheduler” -out kube-scheduler.csr (Certificate Signing Request)(prefixed CN with system)
- openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -out kube-scheduler.crt (Sign certificate)
+#### Then the other Clients:
+
+*kube-scheduler, kube-controller-manager, kube-proxy*
+
+in this cases we must prefix the CN with system:
+
+> Generates key
+
+`openssl genrsa -out kube-scheduler.key 2048`
+
+> Certificate Signing Request
+> prefixed CN with system
+
+`openssl req -new -key admin.key -subj “/CN=system:kube-scheduler” -out kube-scheduler.csr`
+
+> Sign certificate
+
+`openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -out kube-scheduler.crt`
  
-After the clients we need to generate the servers certificates:
-First ETCD server:
-openssl genrsa -out etcdserver.key 2048 (generates key)
- openssl req -new -key admin.key -subj “/CN=etcdserver” -out etcdserver.csr (Certificate Signing Request)
- openssl x509 -req -in etcdserver.csr -CA ca.crt -CAkey ca.key -out etcdserver.crt (Sign certificate)
+#### After the clients we need to generate the servers certificates:
 
- If is a cluster of etcd servers needs to generate the certs for the peers:
+> First ETCD server:
 
+`openssl genrsa -out etcdserver.key 2048`
+`openssl req -new -key admin.key -subj “/CN=etcdserver” -out etcdserver.csr`
+`openssl x509 -req -in etcdserver.csr -CA ca.crt -CAkey ca.key -out etcdserver.crt`
 
-And kube-api server:
+If is a cluster of etcd servers needs to generate the certs for the peers:
+
+> And kube-api server:
+
 This case we must especify all the subjects name that other names use to comunicate:
-openssl genrsa -out apiserver.key 2048 (generates key)
+
+`openssl genrsa -out apiserver.key 2048`
+
 Set an openssl.cnf file to especify alternative names:
- [req]
- req_extensions = v3_req
- [v3_req]
- basicConstraints = CA:FALSE
- keyUsage = nonRepudiation,
- subjectAltName = @alt_names
- [alt_names]
- DNS.1 = kubernetes
- DNS.2 = kubernetes.default
- DNS.3 = kubernetes.default.svc
- DNS.4 = kubernetes.default.svc.cluster.local
- IP.1 = 10.96.0.1
- IP.2 = 172.17.0.87
 
+```
+[req]
+req_extensions = v3_req
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation,
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = kubernetes
+DNS.2 = kubernetes.default
+DNS.3 = kubernetes.default.svc
+DNS.4 = kubernetes.default.svc.cluster.local
+IP.1 = 10.96.0.1
+IP.2 = 172.17.0.87
+```
 
- openssl req -new -key apiserver.key -subj “/CN=kube-apiserver” -out apiserver.csr \
---config openssl.cnf (Certificate Signing Request)
- openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
+`openssl req -new -key apiserver.key -subj “/CN=kube-apiserver” -out apiserver.csr \
+  --config openssl.cnf (Certificate Signing Request)`
 
-    
+`openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt`
 
-    Set at systemd unit exec start of kube-apiserver
-    ExecStart=/usr/local/bin/kube-apiserver \\
-     --etcd-cafile=/var/lib/kubernetes/ca.pem \\
-     --etcd-certfile=/var/lib/kubernetes/apiserver-etcd-client.crt \\
-     --etcd-keyfile=/var/lib/kubernetes/apiserver-etcd-client.key \\
-     --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
-     --kubelet-client-certificate=/var/lib/kubernetes/apiserver-etcd-client.crt \\
-     --kubelet-client-key=/var/lib/kubernetes/apiserver-etcd-client.key \\
-     --client-ca-file=/var/lib/kubernetes/ca.pem \\
-     --tls-cert-file=/var/lib/kubernetes/apiserver.crt \\
-     --tls-private-key-file=/var/lib/kubernetes/apiserver.key \\
-    
-    And kubelets nodes:
-    The name(CN) of nodes must follow node01...02...03
-openssl genrsa -out apiserver.key 2048 (generates key)
- openssl req -new -key apiserver.key -subj “/CN=node01” -out apiserver.csr
- openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt (Sign certificate)
- 
- With the certificate we must add them to the kubelet-config.yml
-  kind: KubeletConfiguration
-  apiVersion: kubelet.config.k8s.io/v1beta1
-  authentication:
-    x509:
-      clientCAFile: “/var/lib/kubernetes/ca.pem”
-  authorization:
-    mode: Webhook
-  clusterDomain: “cluster.local”
-  clusterDNS:
-    - “10.32.0.10”
-  podCIDR: “${POD_CIDR}}”
-  resolvConf: “/run/systemd/resolve/resolv.conf”
-  runtimeRequestTimeout: “15m”
-  tlsCertFile: “/var/lib/kubelet/kubelet-node01.crt”
-  tlsPrivateKeyFile: “/var/lib/kubelet/kubelet-node01.key”
+Set at systemd unit exec start of kube-apiserver
 
+```
+ExecStart=/usr/local/bin/kube-apiserver \\
+ --etcd-cafile=/var/lib/kubernetes/ca.pem \\
+ --etcd-certfile=/var/lib/kubernetes/apiserver-etcd-client.crt \\
+ --etcd-keyfile=/var/lib/kubernetes/apiserver-etcd-client.key \\
+ --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
+ --kubelet-client-certificate=/var/lib/kubernetes/apiserver-etcd-client.crt \\
+ --kubelet-client-key=/var/lib/kubernetes/apiserver-etcd-client.key \\
+ --client-ca-file=/var/lib/kubernetes/ca.pem \\
+ --tls-cert-file=/var/lib/kubernetes/apiserver.crt \\
+ --tls-private-key-file=/var/lib/kubernetes/apiserver.key \\
+```
+
+And kubelets nodes:
+
+The name(CN) of nodes must follow system:node:node01...02...03
+
+`openssl genrsa -out kubelet-client.key 2048`
+
+`openssl req -new -key kubelet-client.key -subj “/CN=system:node:node01” -out kubelet-client.csr`
+
+`openssl x509 -req -in kubelet-client.csr -CA ca.crt -CAkey ca.key -out kubelet-client.crt`
+
+With the certificate we must add them to the kubelet-config.yml
+
+```
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+authentication:
+  x509:
+    clientCAFile: “/var/lib/kubernetes/ca.pem”
+authorization:
+  mode: Webhook
+clusterDomain: “cluster.local”
+clusterDNS:
+  - “10.32.0.10”
+podCIDR: “${POD_CIDR}}”
+resolvConf: “/run/systemd/resolve/resolv.conf”
+runtimeRequestTimeout: “15m”
+tlsCertFile: “/var/lib/kubelet/kubelet-node01.crt”
+tlsPrivateKeyFile: “/var/lib/kubelet/kubelet-node01.key”
+```
 
 TIPS
 POD
